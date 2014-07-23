@@ -1,4 +1,4 @@
 Manifest-Version: 1.0
-Class-Path: mysql-connector-java-5.1.31-bin.jar
+Class-Path: lib/sqljdbc.jar lib/sqljdbc4.jar lib/mysql-connector-java-5.1.25-bin.jar
 Main-Class: JDBCTest
 
