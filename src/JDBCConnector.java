@@ -73,10 +73,12 @@ public class JDBCConnector {
         for (Throwable e : ex) {
             if (e instanceof SQLException) {
                 if (ignoreSQLException(((SQLException) e).getSQLState()) == false) {
+                    System.err.println("******************************************************************************");
                     e.printStackTrace(System.err);
-                    System.err.println("SQLState: " + ((SQLException) e).getSQLState());
-                    System.err.println("Error Code: " + ((SQLException) e).getErrorCode());
-                    System.err.println("Message: " + e.getMessage());
+                    System.err.println("     SQLState: " + ((SQLException) e).getSQLState());
+                    System.err.println("     Error Code: " + ((SQLException) e).getErrorCode());
+                    System.err.println("     Message: " + e.getMessage());
+                    System.err.println("******************************************************************************");
                     Throwable t = ex.getCause();
                     while (t != null) {
                         System.out.println("Cause: " + t);
@@ -120,28 +122,6 @@ public class JDBCConnector {
         System.out.println("serverName: " + serverName);
         System.out.println("portNumber: " + portNumber);
 
-    }
-
-    public Connection getConnectionToDatabase() throws SQLException {
-        {
-            Connection conn = null;
-            Properties connectionProps = new Properties();
-            connectionProps.put("user", this.userName);
-            connectionProps.put("password", this.password);
-
-            // Using a driver manager:
-
-            if (this.dbms.equals("mysql")) {
-//        DriverManager.registerDriver(new com.mysql.jdbc.Driver());
-                conn = DriverManager.getConnection("jdbc:" + dbms + "://" + serverName + ":" + portNumber + "/" + dbName, connectionProps);
-                conn.setCatalog(this.dbName);
-            } else if (this.dbms.equals("derby")) {
-//        DriverManager.registerDriver(new org.apache.derby.jdbc.EmbeddedDriver());
-                conn = DriverManager.getConnection("jdbc:" + dbms + ":" + dbName, connectionProps);
-            }
-            System.out.println("Connected to database");
-            return conn;
-        }
     }
 
     public Connection getConnection() throws SQLException {
