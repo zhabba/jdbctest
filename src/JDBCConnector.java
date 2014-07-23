@@ -133,15 +133,11 @@ public class JDBCConnector {
 
             if (this.dbms.equals("mysql")) {
 //        DriverManager.registerDriver(new com.mysql.jdbc.Driver());
-                conn =
-                        DriverManager.getConnection("jdbc:" + dbms + "://" + serverName +
-                                        ":" + portNumber + "/" + dbName,
-                                connectionProps);
+                conn = DriverManager.getConnection("jdbc:" + dbms + "://" + serverName + ":" + portNumber + "/" + dbName, connectionProps);
                 conn.setCatalog(this.dbName);
             } else if (this.dbms.equals("derby")) {
 //        DriverManager.registerDriver(new org.apache.derby.jdbc.EmbeddedDriver());
-                conn =
-                        DriverManager.getConnection("jdbc:" + dbms + ":" + dbName, connectionProps);
+                conn = DriverManager.getConnection("jdbc:" + dbms + ":" + dbName, connectionProps);
             }
             System.out.println("Connected to database");
             return conn;
@@ -153,47 +149,19 @@ public class JDBCConnector {
         Properties connectionProps = new Properties();
         connectionProps.put("user", this.userName);
         connectionProps.put("password", this.password);
-
         String currentUrlString = null;
-
         if (this.dbms.equals("mysql")) {
-            currentUrlString = "jdbc:" + this.dbms + "://" + this.serverName +
-                    ":" + this.portNumber + "/";
-            conn =
-                    DriverManager.getConnection(currentUrlString,
-                            connectionProps);
-
+            currentUrlString = "jdbc:" + this.dbms + "://" + this.serverName + ":" + this.portNumber + "/";
+            conn = DriverManager.getConnection(currentUrlString, connectionProps);
             this.urlString = currentUrlString + this.dbName;
             conn.setCatalog(this.dbName);
-        } else if (this.dbms.equals("derby")) {
+        } else if (this.dbms.equals("mssql")) {
             this.urlString = "jdbc:" + this.dbms + ":" + this.dbName;
-
-            conn =
-                    DriverManager.getConnection(this.urlString +
-                            ";create=true", connectionProps);
-
+            conn = DriverManager.getConnection(this.urlString, connectionProps);
         }
-        System.out.println("Connected to database");
-        return conn;
-    }
-
-    public Connection getConnection(String userName,
-                                    String password) throws SQLException {
-        Connection conn = null;
-        Properties connectionProps = new Properties();
-        connectionProps.put("user", userName);
-        connectionProps.put("password", password);
-        if (this.dbms.equals("mysql")) {
-            conn =
-                    DriverManager.getConnection("jdbc:" + this.dbms + "://" + this.serverName +
-                                    ":" + this.portNumber + "/",
-                            connectionProps);
-            conn.setCatalog(this.dbName);
-        } else if (this.dbms.equals("derby")) {
-            conn =
-                    DriverManager.getConnection("jdbc:" + this.dbms + ":" + this.dbName +
-                            ";create=true", connectionProps);
-        }
+        System.out.println("***********************************");
+        System.out.println("*      Connected to database      *");
+        System.out.println("***********************************");
         return conn;
     }
 }
