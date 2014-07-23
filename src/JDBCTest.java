@@ -9,14 +9,14 @@ public class JDBCTest {
         JDBCConnector JDBCConnector;
         Connection myConnection = null;
         if (args[0] == null) {
-            System.err.println("Properties file not specified at command line");
+            System.err.println("Server type not specified at command line");
             return;
         } else {
             try {
-                System.out.println("Reading properties file " + args[0]);
-                JDBCConnector = new JDBCConnector(args[0]);
+                System.out.println("Reading properties file " + "\"" + args[0] + "\"");
+                JDBCConnector = new JDBCConnector("./properties/" + args[0] + ".xml");
             } catch (Exception e) {
-                System.err.println("Problem reading properties file " + args[0]);
+                System.err.println("Problem reading properties file " + "./properties/" + args[0] + ".xml");
                 e.printStackTrace();
                 return;
             }
