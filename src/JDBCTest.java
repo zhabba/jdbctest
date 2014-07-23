@@ -24,12 +24,6 @@ public class JDBCTest {
 
         try {
             myConnection = JDBCConnector.getConnection();
-            //      JDBCTutorialUtilities.outputClientInfoProperties(myConnection);
-            // myConnection = JDBCConnector.getConnection("root", "root", "jdbc:mysql://localhost:3306/");
-            //       myConnection = JDBCConnector.
-            //         getConnectionWithDataSource(JDBCConnector.dbName,"derby","", "", "localhost", 3306);
-
-
         } catch (SQLException e) {
             JDBCConnector.printSQLException(e);
         } catch (Exception e) {
