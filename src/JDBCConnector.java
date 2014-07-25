@@ -31,10 +31,9 @@
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.Properties;
+import java.util.Scanner;
 
 public class JDBCConnector {
 
@@ -42,12 +41,13 @@ public class JDBCConnector {
     public String dbName;
     public String userName;
     public String password;
-    public String urlString;
 
     private String driver;
     private String serverName;
     private int portNumber;
     private Properties prop;
+    private String appRole;
+    private String appPassword;
 
 
     public JDBCConnector(String propertiesFileName) throws IOException {
@@ -113,6 +113,8 @@ public class JDBCConnector {
         this.password = this.prop.getProperty("password");
         this.serverName = this.prop.getProperty("server_name");
         this.portNumber = Integer.parseInt(this.prop.getProperty("port_number"));
+        this.appRole = this.prop.getProperty("appRole");
+        this.appPassword = this.prop.getProperty("appPassword");
 
         System.out.println("Set the following properties:");
         System.out.println("dbms: " + dbms);
@@ -121,7 +123,7 @@ public class JDBCConnector {
         System.out.println("userName: " + userName);
         System.out.println("serverName: " + serverName);
         System.out.println("portNumber: " + portNumber);
-
+        System.out.println("appRole: " + appRole);
     }
 
     public Connection getConnection() throws SQLException {
@@ -131,17 +133,56 @@ public class JDBCConnector {
         connectionProps.put("password", this.password);
         String currentUrlString = null;
         if (this.dbms.equals("mysql")) {
-            currentUrlString = "jdbc:" + this.dbms + "://" + this.serverName + ":" + this.portNumber + "/";
-            conn = DriverManager.getConnection(currentUrlString, connectionProps);
-            this.urlString = currentUrlString + this.dbName;
-            conn.setCatalog(this.dbName);
-        } else if (this.dbms.equals("mssql")) {
-            this.urlString = "jdbc:" + this.dbms + ":" + this.dbName;
-            conn = DriverManager.getConnection(this.urlString, connectionProps);
+            //jdbc:mysql://[host][,failoverhost...][:port]/[database][?propertyName1][=propertyValue1][&propertyName2][=propertyValue2]
+            currentUrlString = "jdbc:" + this.dbms + "://" + this.serverName + ":" + this.portNumber + "/" + this.dbName;
+        } else if (this.dbms.equals("sqlserver")) {
+            // jdbc:sqlserver://[serverName[\instanceName][:portNumber]][;property=value[;property=value]]
+            currentUrlString = "jdbc:" + this.dbms + "://" + this.serverName + ":" + this.portNumber + ";databaseName=" + this.dbName;
         }
-        System.out.println("***********************************");
+
+        conn = DriverManager.getConnection(currentUrlString, connectionProps);
+        conn.setCatalog(this.dbName);
+
+        System.out.println("\n\n***********************************");
         System.out.println("*      Connected to database      *");
-        System.out.println("***********************************");
+        System.out.println("***********************************\n\n");
+        if (this.dbms.equals("sqlserver")) {
+            Statement st = null;
+            try {
+                st = conn.createStatement(); //XXX Make this secure
+                st.execute(String.format("EXEC sp_setapprole '%s', '%s'",
+                        appRole, appPassword));
+                System.out.println("\n\n***********************************");
+                System.out.println("* Setup role executed successfully *");
+                System.out.println("***********************************\n\n");
+                System.out.println("Type your query:> ");
+                Scanner sc = new Scanner(System.in);
+                while (sc.hasNext()) {
+                    String rawQuery = sc.nextLine();
+                    try {
+                        ResultSet out = st.executeQuery(rawQuery);
+                        while (out.next() != false) {
+                            int i = 1;
+                            while (out.getString(i) != null) {
+                                System.out.print(out.getString(i) + "\t");
+                                i++;
+                            }
+                            System.out.println();
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        System.out.println("\nType your query:> ");
+                    }
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                if (st != null) {
+                    st.close();
+                }
+            }
+        }
         return conn;
     }
 }
